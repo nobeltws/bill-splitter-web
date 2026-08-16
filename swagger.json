@@ -1,0 +1,859 @@
+{
+	"openapi": "3.1.0",
+	"info": { "title": "Bill Splitter", "version": "0.1.0" },
+	"paths": {
+		"/health": {
+			"get": {
+				"summary": "Health",
+				"operationId": "health_health_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					}
+				}
+			}
+		},
+		"/api/receipts/parse": {
+			"post": {
+				"summary": "Parse Receipt",
+				"operationId": "parse_receipt_api_receipts_parse_post",
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/Body_parse_receipt_api_receipts_parse_post"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ParsedReceipt"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/sessions": {
+			"post": {
+				"summary": "Create Session",
+				"operationId": "create_session_api_sessions_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateSessionRequest"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CreateSessionResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/sessions/{session_id}/summary": {
+			"get": {
+				"summary": "Get Session Summary",
+				"operationId": "get_session_summary_api_sessions__session_id__summary_get",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SessionSummaryResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/sessions/{session_id}": {
+			"get": {
+				"summary": "Get Session By Id",
+				"operationId": "get_session_by_id_api_sessions__session_id__get",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GetSessionResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/sessions/{session_id}/claims": {
+			"post": {
+				"summary": "Create Claims",
+				"operationId": "create_claims_api_sessions__session_id__claims_post",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateClaimsRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CreateClaimsResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"summary": "Delete Claim",
+				"operationId": "delete_claim_api_sessions__session_id__claims_delete",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DeleteClaimRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/sessions/{session_id}/payments": {
+			"post": {
+				"summary": "Mark Paid",
+				"operationId": "mark_paid_api_sessions__session_id__payments_post",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaymentResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"summary": "Unmark Paid",
+				"operationId": "unmark_paid_api_sessions__session_id__payments_delete",
+				"parameters": [
+					{
+						"name": "session_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Session Id"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PaymentRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaymentResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"Body_parse_receipt_api_receipts_parse_post": {
+				"properties": {
+					"image": {
+						"type": "string",
+						"contentMediaType": "application/octet-stream",
+						"title": "Image"
+					}
+				},
+				"type": "object",
+				"required": ["image"],
+				"title": "Body_parse_receipt_api_receipts_parse_post"
+			},
+			"ClaimItemRequest": {
+				"properties": {
+					"itemId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Itemid"
+					},
+					"quantity": {
+						"type": "integer",
+						"exclusiveMinimum": 0.0,
+						"title": "Quantity"
+					}
+				},
+				"type": "object",
+				"required": ["itemId", "quantity"],
+				"title": "ClaimItemRequest"
+			},
+			"ClaimResponse": {
+				"properties": {
+					"itemId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Itemid"
+					},
+					"itemName": { "type": "string", "title": "Itemname" },
+					"quantity": { "type": "integer", "title": "Quantity" }
+				},
+				"type": "object",
+				"required": ["itemId", "itemName", "quantity"],
+				"title": "ClaimResponse"
+			},
+			"CreateClaimsRequest": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Participantname"
+					},
+					"claims": {
+						"items": {
+							"$ref": "#/components/schemas/ClaimItemRequest"
+						},
+						"type": "array",
+						"minItems": 1,
+						"title": "Claims"
+					}
+				},
+				"type": "object",
+				"required": ["participantName", "claims"],
+				"title": "CreateClaimsRequest"
+			},
+			"CreateClaimsResponse": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"title": "Participantname"
+					},
+					"claims": {
+						"items": {
+							"$ref": "#/components/schemas/ClaimResponse"
+						},
+						"type": "array",
+						"title": "Claims"
+					}
+				},
+				"type": "object",
+				"required": ["participantName", "claims"],
+				"title": "CreateClaimsResponse"
+			},
+			"CreateSessionRequest": {
+				"properties": {
+					"hostPaynowId": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Hostpaynowid"
+					},
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/SessionItemRequest"
+						},
+						"type": "array",
+						"minItems": 1,
+						"title": "Items"
+					},
+					"taxRate": {
+						"type": "number",
+						"maximum": 1.0,
+						"minimum": 0.0,
+						"title": "Taxrate",
+						"default": 0.09
+					},
+					"serviceChargeRate": {
+						"type": "number",
+						"maximum": 1.0,
+						"minimum": 0.0,
+						"title": "Servicechargerate",
+						"default": 0.1
+					},
+					"discount": {
+						"type": "number",
+						"minimum": 0.0,
+						"title": "Discount",
+						"default": 0
+					},
+					"participantCount": {
+						"type": "integer",
+						"exclusiveMinimum": 0.0,
+						"title": "Participantcount",
+						"default": 1
+					}
+				},
+				"type": "object",
+				"required": ["hostPaynowId", "items"],
+				"title": "CreateSessionRequest"
+			},
+			"CreateSessionResponse": {
+				"properties": {
+					"sessionId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Sessionid"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["sessionId", "createdAt"],
+				"title": "CreateSessionResponse"
+			},
+			"DeleteClaimRequest": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Participantname"
+					},
+					"itemId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Itemid"
+					}
+				},
+				"type": "object",
+				"required": ["participantName", "itemId"],
+				"title": "DeleteClaimRequest"
+			},
+			"GetSessionResponse": {
+				"properties": {
+					"sessionId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Sessionid"
+					},
+					"hostPaynowId": {
+						"type": "string",
+						"title": "Hostpaynowid"
+					},
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/SessionItemResponse"
+						},
+						"type": "array",
+						"title": "Items"
+					},
+					"taxRate": { "type": "number", "title": "Taxrate" },
+					"serviceChargeRate": {
+						"type": "number",
+						"title": "Servicechargerate"
+					},
+					"discount": { "type": "number", "title": "Discount" },
+					"participantCount": {
+						"type": "integer",
+						"title": "Participantcount"
+					},
+					"claims": {
+						"items": {
+							"$ref": "#/components/schemas/SessionClaimResponse"
+						},
+						"type": "array",
+						"title": "Claims",
+						"default": []
+					},
+					"payments": {
+						"items": {
+							"$ref": "#/components/schemas/SessionPaymentResponse"
+						},
+						"type": "array",
+						"title": "Payments",
+						"default": []
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": [
+					"sessionId",
+					"hostPaynowId",
+					"items",
+					"taxRate",
+					"serviceChargeRate",
+					"discount",
+					"participantCount",
+					"createdAt"
+				],
+				"title": "GetSessionResponse"
+			},
+			"HTTPValidationError": {
+				"properties": {
+					"detail": {
+						"items": {
+							"$ref": "#/components/schemas/ValidationError"
+						},
+						"type": "array",
+						"title": "Detail"
+					}
+				},
+				"type": "object",
+				"title": "HTTPValidationError"
+			},
+			"ParsedItem": {
+				"properties": {
+					"name": { "type": "string", "title": "Name" },
+					"quantity": { "type": "integer", "title": "Quantity" },
+					"unitPrice": { "type": "number", "title": "Unitprice" },
+					"confidence": {
+						"anyOf": [{ "type": "number" }, { "type": "null" }],
+						"title": "Confidence"
+					}
+				},
+				"type": "object",
+				"required": ["name", "quantity", "unitPrice"],
+				"title": "ParsedItem"
+			},
+			"ParsedReceipt": {
+				"properties": {
+					"items": {
+						"items": { "$ref": "#/components/schemas/ParsedItem" },
+						"type": "array",
+						"title": "Items"
+					},
+					"tax": { "type": "number", "title": "Tax" },
+					"serviceCharge": {
+						"type": "number",
+						"title": "Servicecharge"
+					},
+					"rawText": { "type": "string", "title": "Rawtext" }
+				},
+				"type": "object",
+				"required": ["items", "tax", "serviceCharge", "rawText"],
+				"title": "ParsedReceipt"
+			},
+			"ParticipantSummary": {
+				"properties": {
+					"name": { "type": "string", "title": "Name" },
+					"itemsSubtotal": {
+						"type": "number",
+						"title": "Itemssubtotal"
+					},
+					"proportionalTax": {
+						"type": "number",
+						"title": "Proportionaltax"
+					},
+					"proportionalServiceCharge": {
+						"type": "number",
+						"title": "Proportionalservicecharge"
+					},
+					"proportionalDiscount": {
+						"type": "number",
+						"title": "Proportionaldiscount"
+					},
+					"totalOwed": { "type": "number", "title": "Totalowed" }
+				},
+				"type": "object",
+				"required": [
+					"name",
+					"itemsSubtotal",
+					"proportionalTax",
+					"proportionalServiceCharge",
+					"proportionalDiscount",
+					"totalOwed"
+				],
+				"title": "ParticipantSummary"
+			},
+			"PaymentRequest": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Participantname"
+					}
+				},
+				"type": "object",
+				"required": ["participantName"],
+				"title": "PaymentRequest"
+			},
+			"PaymentResponse": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"title": "Participantname"
+					},
+					"paid": { "type": "boolean", "title": "Paid" },
+					"paidAt": {
+						"anyOf": [
+							{ "type": "string", "format": "date-time" },
+							{ "type": "null" }
+						],
+						"title": "Paidat"
+					}
+				},
+				"type": "object",
+				"required": ["participantName", "paid"],
+				"title": "PaymentResponse"
+			},
+			"SessionClaimResponse": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"title": "Participantname"
+					},
+					"itemId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Itemid"
+					},
+					"itemName": { "type": "string", "title": "Itemname" },
+					"quantity": { "type": "integer", "title": "Quantity" }
+				},
+				"type": "object",
+				"required": [
+					"participantName",
+					"itemId",
+					"itemName",
+					"quantity"
+				],
+				"title": "SessionClaimResponse"
+			},
+			"SessionItemRequest": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 1,
+						"title": "Name"
+					},
+					"quantity": {
+						"type": "integer",
+						"exclusiveMinimum": 0.0,
+						"title": "Quantity"
+					},
+					"unitPrice": {
+						"type": "number",
+						"exclusiveMinimum": 0.0,
+						"title": "Unitprice"
+					}
+				},
+				"type": "object",
+				"required": ["name", "quantity", "unitPrice"],
+				"title": "SessionItemRequest"
+			},
+			"SessionItemResponse": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"quantity": { "type": "integer", "title": "Quantity" },
+					"unitPrice": { "type": "number", "title": "Unitprice" }
+				},
+				"type": "object",
+				"required": ["id", "name", "quantity", "unitPrice"],
+				"title": "SessionItemResponse"
+			},
+			"SessionPaymentResponse": {
+				"properties": {
+					"participantName": {
+						"type": "string",
+						"title": "Participantname"
+					},
+					"paidAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Paidat"
+					}
+				},
+				"type": "object",
+				"required": ["participantName", "paidAt"],
+				"title": "SessionPaymentResponse"
+			},
+			"SessionSummaryResponse": {
+				"properties": {
+					"rawSubtotal": { "type": "number", "title": "Rawsubtotal" },
+					"tax": { "type": "number", "title": "Tax" },
+					"serviceCharge": {
+						"type": "number",
+						"title": "Servicecharge"
+					},
+					"discount": { "type": "number", "title": "Discount" },
+					"grandTotal": { "type": "number", "title": "Grandtotal" },
+					"taxRate": { "type": "number", "title": "Taxrate" },
+					"serviceChargeRate": {
+						"type": "number",
+						"title": "Servicechargerate"
+					},
+					"participants": {
+						"items": {
+							"$ref": "#/components/schemas/ParticipantSummary"
+						},
+						"type": "array",
+						"title": "Participants"
+					},
+					"unclaimed": {
+						"$ref": "#/components/schemas/UnclaimedSummary"
+					}
+				},
+				"type": "object",
+				"required": [
+					"rawSubtotal",
+					"tax",
+					"serviceCharge",
+					"discount",
+					"grandTotal",
+					"taxRate",
+					"serviceChargeRate",
+					"participants",
+					"unclaimed"
+				],
+				"title": "SessionSummaryResponse"
+			},
+			"UnclaimedItem": {
+				"properties": {
+					"id": { "type": "string", "format": "uuid", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"quantity": { "type": "integer", "title": "Quantity" },
+					"unitPrice": { "type": "number", "title": "Unitprice" }
+				},
+				"type": "object",
+				"required": ["id", "name", "quantity", "unitPrice"],
+				"title": "UnclaimedItem"
+			},
+			"UnclaimedSummary": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/UnclaimedItem"
+						},
+						"type": "array",
+						"title": "Items"
+					},
+					"subtotal": { "type": "number", "title": "Subtotal" }
+				},
+				"type": "object",
+				"required": ["items", "subtotal"],
+				"title": "UnclaimedSummary"
+			},
+			"ValidationError": {
+				"properties": {
+					"loc": {
+						"items": {
+							"anyOf": [
+								{ "type": "string" },
+								{ "type": "integer" }
+							]
+						},
+						"type": "array",
+						"title": "Location"
+					},
+					"msg": { "type": "string", "title": "Message" },
+					"type": { "type": "string", "title": "Error Type" },
+					"input": { "title": "Input" },
+					"ctx": { "type": "object", "title": "Context" }
+				},
+				"type": "object",
+				"required": ["loc", "msg", "type"],
+				"title": "ValidationError"
+			}
+		}
+	}
+}
