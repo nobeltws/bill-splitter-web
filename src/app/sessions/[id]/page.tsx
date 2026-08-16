@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import { styled } from "@linaria/react";
 import { Button } from "@/components/Button";
@@ -14,10 +14,49 @@ import {
   markPaid,
   unmarkPaid,
 } from "@/lib/api";
+import { Users } from "lucide-react";
 import type {
   GetSessionResponse,
   SessionSummaryResponse,
 } from "@/lib/api";
+
+const CenteredWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 64px);
+  text-align: center;
+`;
+
+const IconCircle = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+`;
+
+const WelcomeTitle = styled.h1`
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+`;
+
+const WelcomeSubtitle = styled.p`
+  font-size: 15px;
+  color: var(--color-muted-foreground);
+  margin-bottom: 32px;
+  max-width: 260px;
+`;
+
+const FormArea = styled.div`
+  width: 100%;
+  text-align: left;
+`;
 
 const Title = styled.h1`
   font-size: 24px;
@@ -73,6 +112,7 @@ export default function ParticipantPage() {
   const params = useParams();
   const sessionId = params.id as string;
 
+  const topRef = useRef<HTMLDivElement>(null);
   const [session, setSession] = useState<GetSessionResponse | null>(null);
   const [summary, setSummary] = useState<SessionSummaryResponse | null>(null);
   const [name, setName] = useState("");
@@ -121,7 +161,7 @@ export default function ParticipantPage() {
   function getAvailableQty(itemId: string, totalQty: number): number {
     if (!session) return 0;
     const claimedByOthers = session.claims
-      .filter((c) => c.itemId === itemId && c.participantName !== name)
+      .filter((c) => c.itemId === itemId && c.participantName.toLowerCase() !== name.toLowerCase())
       .reduce((sum, c) => sum + c.quantity, 0);
     return totalQty - claimedByOthers;
   }
@@ -147,6 +187,7 @@ export default function ParticipantPage() {
       setSuccess("Items claimed successfully!");
       setClaims({});
       await fetchData();
+      topRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to submit claims"
@@ -180,35 +221,43 @@ export default function ParticipantPage() {
 
   if (!nameSubmitted) {
     return (
-      <div>
-        <Title>Join Bill Split</Title>
-        <InputGroup>
-          <Label htmlFor="name">Your name</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your name"
-            onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
-          />
-        </InputGroup>
-        <Button onClick={handleNameSubmit} style={{ marginTop: 16 }}>
-          Continue
-        </Button>
-      </div>
+      <CenteredWrapper>
+        <IconCircle>
+          <Users size={28} color="var(--color-primary)" />
+        </IconCircle>
+        <WelcomeTitle>Join Bill Split</WelcomeTitle>
+        <WelcomeSubtitle>Enter your name to claim your items</WelcomeSubtitle>
+        <FormArea>
+          <InputGroup>
+            <Label htmlFor="name">Your name</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
+            />
+          </InputGroup>
+          <Button onClick={handleNameSubmit} style={{ marginTop: 16 }}>
+            Continue
+          </Button>
+        </FormArea>
+      </CenteredWrapper>
     );
   }
 
   const myParticipant = summary?.participants.find(
-    (p) => p.name === name
+    (p) => p.name.toLowerCase() === name.toLowerCase()
   );
-  const isPaid = session.payments.some((p) => p.participantName === name);
+  const isPaid = session.payments.some(
+    (p) => p.participantName.toLowerCase() === name.toLowerCase()
+  );
   const myClaims = session.claims.filter(
-    (c) => c.participantName === name
+    (c) => c.participantName.toLowerCase() === name.toLowerCase()
   );
 
   return (
-    <div>
+    <div ref={topRef}>
       <Title>Hi, {name}</Title>
 
       {myParticipant && (

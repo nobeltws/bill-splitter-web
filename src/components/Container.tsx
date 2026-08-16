@@ -3,8 +3,8 @@
 import { styled } from "@linaria/react";
 
 export const Container = styled.main`
-  max-width: 720px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 32px 20px;
   min-height: 100dvh;
 `;

@@ -7,35 +7,50 @@ export const Button = styled.button`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 14px 24px;
   border-radius: var(--radius);
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: opacity 150ms ease;
-  min-height: 44px;
+  transition: background-color 150ms ease, transform 100ms ease;
+  min-height: 48px;
   min-width: 44px;
   width: 100%;
   background-color: var(--color-primary);
   color: #ffffff;
+  box-shadow: var(--shadow-sm);
 
   &:hover {
-    opacity: 0.9;
+    background-color: #047857;
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 
   &[data-variant="secondary"] {
     background-color: var(--color-muted);
     color: var(--color-foreground);
+    box-shadow: none;
+
+    &:hover {
+      background-color: var(--color-border);
+    }
   }
 
   &[data-variant="danger"] {
     background-color: var(--color-error);
     color: #ffffff;
+
+    &:hover {
+      background-color: #b91c1c;
+    }
   }
 `;

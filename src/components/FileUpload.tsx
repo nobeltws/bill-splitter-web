@@ -10,19 +10,28 @@ const UploadArea = styled.div`
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
   background: var(--color-card);
+  box-shadow: var(--shadow-sm);
 
   &:hover {
     border-color: var(--color-primary);
-    background: var(--color-muted);
+    background: var(--color-primary-light);
+    box-shadow: var(--shadow-md);
   }
 `;
 
 const UploadLabel = styled.p`
-  font-size: 16px;
+  font-size: 15px;
   color: var(--color-muted-foreground);
   margin-top: 12px;
+`;
+
+const UploadHint = styled.p`
+  font-size: 13px;
+  color: var(--color-muted-foreground);
+  opacity: 0.7;
+  margin-top: 4px;
 `;
 
 const Preview = styled.div`
@@ -30,8 +39,9 @@ const Preview = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--color-muted);
-  border-radius: var(--radius);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 8px);
   margin-top: 16px;
 `;
 
@@ -65,8 +75,9 @@ export function FileUpload({ file, onFileSelect }: FileUploadProps) {
   return (
     <div>
       <UploadArea onClick={handleClick}>
-        <Upload size={32} color="var(--color-muted-foreground)" />
+        <Upload size={32} color="var(--color-primary)" />
         <UploadLabel>Tap to upload receipt image</UploadLabel>
+        <UploadHint>JPG, PNG, or HEIC</UploadHint>
         <input
           ref={inputRef}
           type="file"
