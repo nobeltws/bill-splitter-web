@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Container } from "@/components/Container";
+import { ReceiptProvider } from "@/context/ReceiptContext";
 
 export const metadata: Metadata = {
   title: "Bill Splitter",
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Container>{children}</Container>
+        <ReceiptProvider>
+          <Container>{children}</Container>
+        </ReceiptProvider>
       </body>
     </html>
   );
