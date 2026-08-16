@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { styled } from "@linaria/react";
 import { Plus } from "lucide-react";
@@ -80,6 +80,7 @@ export default function SessionNewPage() {
   const { items: parsedItems, clear } = useReceipt();
   const router = useRouter();
 
+  const isSubmittingRef = useRef(false);
   const [items, setItems] = useState<EditableItem[]>([]);
   const [serviceCharge, setServiceCharge] = useState("10");
   const [gst, setGst] = useState("9");
@@ -90,7 +91,7 @@ export default function SessionNewPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (parsedItems.length === 0) {
+    if (parsedItems.length === 0 && !isSubmittingRef.current) {
       router.replace("/");
       return;
     }
@@ -154,6 +155,7 @@ export default function SessionNewPage() {
         discount: Number(discount) || 0,
         participantCount: Number(participantCount) || 1,
       });
+      isSubmittingRef.current = true;
       clear();
       router.push(`/sessions/${response.sessionId}/dashboard`);
     } catch (err) {
