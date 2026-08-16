@@ -1,7 +1,7 @@
 "use client";
 
 import { styled } from "@linaria/react";
-import { Upload, Image as ImageIcon } from "lucide-react";
+import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { useRef } from "react";
 
 const UploadArea = styled.div`
@@ -51,14 +51,34 @@ const FileName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+`;
+
+const RemoveButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--color-error);
+    color: white;
+  }
 `;
 
 interface FileUploadProps {
   file: File | null;
   onFileSelect: (file: File) => void;
+  onFileRemove?: () => void;
 }
 
-export function FileUpload({ file, onFileSelect }: FileUploadProps) {
+export function FileUpload({ file, onFileSelect, onFileRemove }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleClick() {
@@ -82,7 +102,6 @@ export function FileUpload({ file, onFileSelect }: FileUploadProps) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={handleChange}
           style={{ display: "none" }}
         />
@@ -91,6 +110,11 @@ export function FileUpload({ file, onFileSelect }: FileUploadProps) {
         <Preview>
           <ImageIcon size={20} color="var(--color-primary)" />
           <FileName>{file.name}</FileName>
+          {onFileRemove && (
+            <RemoveButton onClick={onFileRemove} aria-label="Remove file">
+              <X size={14} />
+            </RemoveButton>
+          )}
         </Preview>
       )}
     </div>

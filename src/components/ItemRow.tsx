@@ -46,8 +46,8 @@ const DeleteButton = styled.button`
 
 interface ItemRowProps {
   name: string;
-  quantity: number;
-  unitPrice: number;
+  quantity: string;
+  unitPrice: string;
   onChange: (field: "name" | "quantity" | "unitPrice", value: string) => void;
   onDelete: () => void;
 }

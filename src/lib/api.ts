@@ -20,7 +20,7 @@ export type ParticipantSummary = components["schemas"]["ParticipantSummary"];
 export type UnclaimedItem = components["schemas"]["UnclaimedItem"];
 export type UnclaimedSummary = components["schemas"]["UnclaimedSummary"];
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export const client = createClient<paths>({ baseUrl: BASE_URL });
 

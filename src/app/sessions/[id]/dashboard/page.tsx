@@ -193,18 +193,22 @@ export default function DashboardPage() {
             <SummaryLabel>Subtotal</SummaryLabel>
             <SummaryValue>${summary.rawSubtotal.toFixed(2)}</SummaryValue>
           </SummaryRow>
-          <SummaryRow>
-            <SummaryLabel>
-              Service Charge ({(summary.serviceChargeRate * 100).toFixed(0)}%)
-            </SummaryLabel>
-            <SummaryValue>${summary.serviceCharge.toFixed(2)}</SummaryValue>
-          </SummaryRow>
-          <SummaryRow>
-            <SummaryLabel>
-              GST ({(summary.taxRate * 100).toFixed(0)}%)
-            </SummaryLabel>
-            <SummaryValue>${summary.tax.toFixed(2)}</SummaryValue>
-          </SummaryRow>
+          {summary.serviceChargeRate > 0 && (
+            <SummaryRow>
+              <SummaryLabel>
+                Service Charge ({(summary.serviceChargeRate * 100).toFixed(0)}%)
+              </SummaryLabel>
+              <SummaryValue>${summary.serviceCharge.toFixed(2)}</SummaryValue>
+            </SummaryRow>
+          )}
+          {summary.taxRate > 0 && (
+            <SummaryRow>
+              <SummaryLabel>
+                GST ({(summary.taxRate * 100).toFixed(0)}%)
+              </SummaryLabel>
+              <SummaryValue>${summary.tax.toFixed(2)}</SummaryValue>
+            </SummaryRow>
+          )}
           {summary.discount > 0 && (
             <SummaryRow>
               <SummaryLabel>Discount</SummaryLabel>

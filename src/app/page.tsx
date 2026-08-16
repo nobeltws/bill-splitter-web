@@ -84,7 +84,7 @@ export default function UploadPage() {
       <Title>Bill Splitter</Title>
       <Subtitle>Upload a photo of your receipt and we'll split it for you</Subtitle>
       <ContentArea>
-        <FileUpload file={file} onFileSelect={setFile} />
+        <FileUpload file={file} onFileSelect={setFile} onFileRemove={() => setFile(null)} />
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <Button
           onClick={handleSubmit}

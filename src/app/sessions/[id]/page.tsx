@@ -264,7 +264,12 @@ export default function ParticipantPage() {
         <Section>
           <MyShareCard>
             <ShareAmount>${myParticipant.totalOwed.toFixed(2)}</ShareAmount>
-            <ShareLabel>Your share (incl. GST &amp; service charge)</ShareLabel>
+            <ShareLabel>
+              Your share
+              {session.serviceChargeRate > 0 || session.taxRate > 0
+                ? ` (incl.${session.serviceChargeRate > 0 ? " service charge" : ""}${session.serviceChargeRate > 0 && session.taxRate > 0 ? " &" : ""}${session.taxRate > 0 ? " GST" : ""})`
+                : ""}
+            </ShareLabel>
           </MyShareCard>
 
           <PayNowQR
