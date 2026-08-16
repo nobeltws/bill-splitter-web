@@ -1,71 +1,117 @@
-import type {
-  ParsedReceipt,
-  CreateSessionRequest,
-  CreateSessionResponse,
-  GetSessionResponse,
-  SessionSummaryResponse,
-  CreateClaimsRequest,
-  CreateClaimsResponse,
-  PaymentRequest,
-  PaymentResponse,
-} from "./types";
+import createClient from "openapi-fetch";
+import type { paths, components } from "./api-types";
+
+// Re-export commonly used schema types for convenience
+export type ParsedReceipt = components["schemas"]["ParsedReceipt"];
+export type ParsedItem = components["schemas"]["ParsedItem"];
+export type CreateSessionRequest = components["schemas"]["CreateSessionRequest"];
+export type CreateSessionResponse = components["schemas"]["CreateSessionResponse"];
+export type GetSessionResponse = components["schemas"]["GetSessionResponse"];
+export type SessionSummaryResponse = components["schemas"]["SessionSummaryResponse"];
+export type CreateClaimsRequest = components["schemas"]["CreateClaimsRequest"];
+export type CreateClaimsResponse = components["schemas"]["CreateClaimsResponse"];
+export type PaymentRequest = components["schemas"]["PaymentRequest"];
+export type PaymentResponse = components["schemas"]["PaymentResponse"];
+export type SessionItemRequest = components["schemas"]["SessionItemRequest"];
+export type SessionItemResponse = components["schemas"]["SessionItemResponse"];
+export type SessionClaimResponse = components["schemas"]["SessionClaimResponse"];
+export type SessionPaymentResponse = components["schemas"]["SessionPaymentResponse"];
+export type ParticipantSummary = components["schemas"]["ParticipantSummary"];
+export type UnclaimedItem = components["schemas"]["UnclaimedItem"];
+export type UnclaimedSummary = components["schemas"]["UnclaimedSummary"];
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, options);
+export const client = createClient<paths>({ baseUrl: BASE_URL });
+
+// ---------------------------------------------------------------------------
+// Convenience wrapper functions (preserving the existing API surface)
+// ---------------------------------------------------------------------------
+
+export async function parseReceipt(image: File): Promise<ParsedReceipt> {
+  // openapi-fetch does not handle File objects well for multipart when the
+  // generated type is `string`. Use raw fetch with FormData instead.
+  const formData = new FormData();
+  formData.append("image", image);
+
+  const res = await fetch(`${BASE_URL}/api/receipts/parse`, {
+    method: "POST",
+    body: formData,
+  });
+
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(body?.detail?.[0]?.msg || `Request failed: ${res.status}`);
   }
-  return res.json();
-}
 
-export async function parseReceipt(image: File): Promise<ParsedReceipt> {
-  const formData = new FormData();
-  formData.append("image", image);
-  return request<ParsedReceipt>("/api/receipts/parse", {
-    method: "POST",
-    body: formData,
-  });
+  return res.json() as Promise<ParsedReceipt>;
 }
 
 export async function createSession(
   data: CreateSessionRequest
 ): Promise<CreateSessionResponse> {
-  return request<CreateSessionResponse>("/api/sessions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+  const { data: result, error } = await client.POST("/api/sessions", {
+    body: data,
   });
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
 
 export async function getSession(
   sessionId: string
 ): Promise<GetSessionResponse> {
-  return request<GetSessionResponse>(`/api/sessions/${sessionId}`);
+  const { data: result, error } = await client.GET(
+    "/api/sessions/{session_id}",
+    { params: { path: { session_id: sessionId } } }
+  );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
 
 export async function getSessionSummary(
   sessionId: string
 ): Promise<SessionSummaryResponse> {
-  return request<SessionSummaryResponse>(
-    `/api/sessions/${sessionId}/summary`
+  const { data: result, error } = await client.GET(
+    "/api/sessions/{session_id}/summary",
+    { params: { path: { session_id: sessionId } } }
   );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
 
 export async function createClaims(
   sessionId: string,
   data: CreateClaimsRequest
 ): Promise<CreateClaimsResponse> {
-  return request<CreateClaimsResponse>(
-    `/api/sessions/${sessionId}/claims`,
+  const { data: result, error } = await client.POST(
+    "/api/sessions/{session_id}/claims",
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      params: { path: { session_id: sessionId } },
+      body: data,
     }
   );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
 
 export async function deleteClaim(
@@ -73,37 +119,56 @@ export async function deleteClaim(
   participantName: string,
   itemId: string
 ): Promise<void> {
-  await request(`/api/sessions/${sessionId}/claims`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ participantName, itemId }),
-  });
+  const { error } = await client.DELETE(
+    "/api/sessions/{session_id}/claims",
+    {
+      params: { path: { session_id: sessionId } },
+      body: { participantName, itemId },
+    }
+  );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
 }
 
 export async function markPaid(
   sessionId: string,
   data: PaymentRequest
 ): Promise<PaymentResponse> {
-  return request<PaymentResponse>(
-    `/api/sessions/${sessionId}/payments`,
+  const { data: result, error } = await client.POST(
+    "/api/sessions/{session_id}/payments",
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      params: { path: { session_id: sessionId } },
+      body: data,
     }
   );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
 
 export async function unmarkPaid(
   sessionId: string,
   data: PaymentRequest
 ): Promise<PaymentResponse> {
-  return request<PaymentResponse>(
-    `/api/sessions/${sessionId}/payments`,
+  const { data: result, error } = await client.DELETE(
+    "/api/sessions/{session_id}/payments",
     {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      params: { path: { session_id: sessionId } },
+      body: data,
     }
   );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
 }
