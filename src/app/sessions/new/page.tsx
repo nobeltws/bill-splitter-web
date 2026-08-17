@@ -440,16 +440,23 @@ export default function SessionNewPage() {
 							(Number(item.unitPrice) || 0),
 					0,
 				);
-				const svcAmt = (subtotal * (Number(serviceCharge) || 0)) / 100;
-				const gstAmt = ((subtotal + svcAmt) * (Number(gst) || 0)) / 100;
 				const discountAmt = Number(discount) || 0;
-				const grandTotal = subtotal + svcAmt + gstAmt - discountAmt;
+				const discountedSubtotal = subtotal - discountAmt;
+				const svcAmt = (discountedSubtotal * (Number(serviceCharge) || 0)) / 100;
+				const gstAmt = ((discountedSubtotal + svcAmt) * (Number(gst) || 0)) / 100;
+				const grandTotal = discountedSubtotal + svcAmt + gstAmt;
 				return (
 					<TotalCard>
 						<TotalRow>
 							<span>Subtotal</span>
 							<span>${subtotal.toFixed(2)}</span>
 						</TotalRow>
+						{discountAmt > 0 && (
+							<TotalRow>
+								<span>Discount</span>
+								<span>-${discountAmt.toFixed(2)}</span>
+							</TotalRow>
+						)}
 						{Number(serviceCharge) > 0 && (
 							<TotalRow>
 								<span>Service Charge ({serviceCharge}%)</span>
@@ -460,12 +467,6 @@ export default function SessionNewPage() {
 							<TotalRow>
 								<span>GST ({gst}%)</span>
 								<span>${gstAmt.toFixed(2)}</span>
-							</TotalRow>
-						)}
-						{discountAmt > 0 && (
-							<TotalRow>
-								<span>Discount</span>
-								<span>-${discountAmt.toFixed(2)}</span>
 							</TotalRow>
 						)}
 						<TotalRowGrand>
