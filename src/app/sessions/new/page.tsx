@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { styled } from "@linaria/react";
-import { Plus } from "lucide-react";
+import { Plus, AlertTriangle, Check, X } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Input, InputGroup, Label } from "@/components/Input";
 import { ItemRow } from "@/components/ItemRow";
@@ -94,10 +94,115 @@ const ErrorMessage = styled.p`
 	margin-bottom: 12px;
 `;
 
+const UncertainSection = styled.section`
+	margin-bottom: 24px;
+	border: 1px solid #f59e0b;
+	border-radius: var(--radius);
+	padding: 16px;
+	background: rgba(245, 158, 11, 0.04);
+`;
+
+const UncertainHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+`;
+
+const UncertainTitle = styled.h2`
+	font-size: 16px;
+	font-weight: 600;
+	color: #b45309;
+`;
+
+const UncertainDescription = styled.p`
+	font-size: 13px;
+	color: var(--color-muted-foreground);
+	margin-bottom: 12px;
+`;
+
+const UncertainItem = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+	background: var(--color-card);
+	margin-bottom: 8px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+`;
+
+const UncertainItemInfo = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+	min-width: 0;
+`;
+
+const UncertainItemName = styled.span`
+	font-size: 14px;
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+`;
+
+const UncertainItemMeta = styled.span`
+	font-size: 12px;
+	color: var(--color-muted-foreground);
+`;
+
+const UncertainActions = styled.div`
+	display: flex;
+	gap: 8px;
+	margin-left: 12px;
+`;
+
+const IconButtonBase = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: var(--radius);
+	border: 1px solid var(--color-border);
+	background: none;
+	cursor: pointer;
+`;
+
+const AcceptButton = styled(IconButtonBase)`
+	color: var(--color-success);
+
+	&:hover {
+		background: rgba(5, 150, 105, 0.08);
+	}
+`;
+
+const DismissButton = styled(IconButtonBase)`
+	color: var(--color-muted-foreground);
+
+	&:hover {
+		background: rgba(220, 38, 38, 0.08);
+		color: var(--color-error);
+	}
+`;
+
 interface EditableItem {
 	name: string;
 	quantity: string;
 	unitPrice: string;
+}
+
+interface UncertainItemData {
+	name: string;
+	quantity: number;
+	unitPrice: number;
+	confidence: number;
 }
 
 export default function SessionNewPage() {
@@ -105,6 +210,7 @@ export default function SessionNewPage() {
 	const router = useRouter();
 
 	const [items, setItems] = useState<EditableItem[]>([]);
+	const [uncertainItems, setUncertainItems] = useState<UncertainItemData[]>([]);
 	const [serviceCharge, setServiceCharge] = useState("10");
 	const [gst, setGst] = useState("9");
 	const [discount, setDiscount] = useState("0");
@@ -115,13 +221,26 @@ export default function SessionNewPage() {
 
 	useEffect(() => {
 		if (parsedItems.length === 0) return;
-		setItems(
-			parsedItems.map((item) => ({
-				name: item.name,
-				quantity: String(item.quantity),
-				unitPrice: String(item.unitPrice),
-			})),
-		);
+		const confident: EditableItem[] = [];
+		const uncertain: UncertainItemData[] = [];
+		for (const item of parsedItems) {
+			if (item.confidence != null && item.confidence < 0.8) {
+				uncertain.push({
+					name: item.name,
+					quantity: item.quantity,
+					unitPrice: item.unitPrice,
+					confidence: item.confidence,
+				});
+			} else {
+				confident.push({
+					name: item.name,
+					quantity: String(item.quantity),
+					unitPrice: String(item.unitPrice),
+				});
+			}
+		}
+		setItems(confident);
+		setUncertainItems(uncertain);
 	}, [parsedItems]);
 
 	function updateItem(
@@ -142,6 +261,23 @@ export default function SessionNewPage() {
 
 	function addItem() {
 		setItems((prev) => [...prev, { name: "", quantity: "1", unitPrice: "" }]);
+	}
+
+	function acceptUncertainItem(index: number) {
+		const item = uncertainItems[index];
+		setItems((prev) => [
+			...prev,
+			{
+				name: item.name,
+				quantity: String(item.quantity),
+				unitPrice: String(item.unitPrice),
+			},
+		]);
+		setUncertainItems((prev) => prev.filter((_, i) => i !== index));
+	}
+
+	function dismissUncertainItem(index: number) {
+		setUncertainItems((prev) => prev.filter((_, i) => i !== index));
 	}
 
 	async function handleSubmit() {
@@ -234,6 +370,50 @@ export default function SessionNewPage() {
 					<Plus size={16} /> Add Item
 				</AddButton>
 			</Section>
+
+			{uncertainItems.length > 0 && (
+				<UncertainSection>
+					<UncertainHeader>
+						<AlertTriangle size={18} color="#b45309" />
+						<UncertainTitle>Needs Review</UncertainTitle>
+					</UncertainHeader>
+					<UncertainDescription>
+						These items had low OCR confidence. Add the real items
+						to your bill or dismiss the false ones.
+					</UncertainDescription>
+					{uncertainItems.map((item, index) => (
+						<UncertainItem key={index}>
+							<UncertainItemInfo>
+								<UncertainItemName>
+									{item.name}
+								</UncertainItemName>
+								<UncertainItemMeta>
+									Qty: {item.quantity} &times; $
+									{item.unitPrice.toFixed(2)}
+								</UncertainItemMeta>
+							</UncertainItemInfo>
+							<UncertainActions>
+								<AcceptButton
+									onClick={() =>
+										acceptUncertainItem(index)
+									}
+									aria-label={`Add ${item.name} to items`}
+								>
+									<Check size={18} />
+								</AcceptButton>
+								<DismissButton
+									onClick={() =>
+										dismissUncertainItem(index)
+									}
+									aria-label={`Dismiss ${item.name}`}
+								>
+									<X size={18} />
+								</DismissButton>
+							</UncertainActions>
+						</UncertainItem>
+					))}
+				</UncertainSection>
+			)}
 
 			{(() => {
 				const subtotal = items.reduce(
