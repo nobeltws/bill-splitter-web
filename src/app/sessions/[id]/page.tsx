@@ -87,11 +87,13 @@ const SuccessMessage = styled.p`
 `;
 
 const MyShareCard = styled.div`
-  background: var(--color-muted);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 20px;
   text-align: center;
   margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
 `;
 
 const ShareAmount = styled.p`
@@ -103,7 +105,37 @@ const ShareAmount = styled.p`
 const ShareLabel = styled.p`
   font-size: 14px;
   color: var(--color-muted-foreground);
-  margin-top: 4px;
+  margin-top: 6px;
+`;
+
+const Card = styled.div`
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+`;
+
+const ClaimedList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ClaimedChip = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--color-muted);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+`;
+
+const ClaimedQty = styled.span`
+  font-size: 13px;
+  color: var(--color-muted-foreground);
+  font-weight: 500;
 `;
 
 const STORAGE_KEY_PREFIX = "bill-splitter-name-";
@@ -294,18 +326,20 @@ export default function ParticipantPage() {
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {success && <SuccessMessage>{success}</SuccessMessage>}
 
-        {session.items.map((item) => (
-          <ClaimItem
-            key={item.id}
-            name={item.name}
-            unitPrice={item.unitPrice}
-            availableQty={getAvailableQty(item.id, item.quantity)}
-            claimedQty={claims[item.id] || 0}
-            onQuantityChange={(qty) =>
-              setClaims((prev) => ({ ...prev, [item.id]: qty }))
-            }
-          />
-        ))}
+        <Card>
+          {session.items.map((item) => (
+            <ClaimItem
+              key={item.id}
+              name={item.name}
+              unitPrice={item.unitPrice}
+              availableQty={getAvailableQty(item.id, item.quantity)}
+              claimedQty={claims[item.id] || 0}
+              onQuantityChange={(qty) =>
+                setClaims((prev) => ({ ...prev, [item.id]: qty }))
+              }
+            />
+          ))}
+        </Card>
 
         <Button
           onClick={handleSubmitClaims}
@@ -319,11 +353,14 @@ export default function ParticipantPage() {
       {myClaims.length > 0 && (
         <Section>
           <SectionTitle>My Claimed Items</SectionTitle>
-          {myClaims.map((c) => (
-            <p key={`${c.itemId}-${c.participantName}`} style={{ fontSize: 14, padding: "4px 0" }}>
-              {c.itemName} x{c.quantity}
-            </p>
-          ))}
+          <ClaimedList>
+            {myClaims.map((c) => (
+              <ClaimedChip key={`${c.itemId}-${c.participantName}`}>
+                <span>{c.itemName}</span>
+                <ClaimedQty>&times;{c.quantity}</ClaimedQty>
+              </ClaimedChip>
+            ))}
+          </ClaimedList>
         </Section>
       )}
     </div>

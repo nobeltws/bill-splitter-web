@@ -21,7 +21,7 @@ const ItemName = styled.p`
 `;
 
 const ItemMeta = styled.p`
-  font-size: 12px;
+  font-size: 13px;
   color: var(--color-muted-foreground);
 `;
 
@@ -35,13 +35,19 @@ const QtyButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--color-border);
   border-radius: 50%;
   background: var(--color-card);
   cursor: pointer;
   color: var(--color-foreground);
+  -webkit-tap-highlight-color: transparent;
+
+  @media (pointer: coarse) {
+    width: 44px;
+    height: 44px;
+  }
 
   &:hover {
     background: var(--color-muted);

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Cropper from "react-easy-crop";
-import type { Area } from "react-easy-crop";
+import { useState, useRef } from "react";
+import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 import { styled } from "@linaria/react";
 import { cropImage } from "@/lib/cropImage";
 import { Loader2 } from "lucide-react";
@@ -14,11 +14,23 @@ const Overlay = styled.div`
   background: #000;
   display: flex;
   flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
 `;
 
 const CropContainer = styled.div`
-  position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 16px;
+`;
+
+const CropImage = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
 `;
 
 const ActionBar = styled.div`
@@ -57,20 +69,41 @@ interface CropOverlayProps {
 }
 
 export function CropOverlay({ imageSrc, fileName, onConfirm, onCancel }: CropOverlayProps) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [processing, setProcessing] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  const onCropComplete = useCallback((_: Area, areaPixels: Area) => {
-    setCroppedAreaPixels(areaPixels);
-  }, []);
+  function handleImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+    const { naturalWidth, naturalHeight } = e.currentTarget;
+    const cropWidth = Math.round(naturalWidth * 0.9);
+    const cropHeight = Math.round(naturalHeight * 0.9);
+    const x = Math.round((naturalWidth - cropWidth) / 2);
+    const y = Math.round((naturalHeight - cropHeight) / 2);
+    const initialCrop: Crop = {
+      unit: "px",
+      x,
+      y,
+      width: cropWidth,
+      height: cropHeight,
+    };
+    setCrop(initialCrop);
+    setCompletedCrop(initialCrop as PixelCrop);
+  }
 
   async function handleConfirm() {
-    if (!croppedAreaPixels) return;
+    if (!completedCrop || !imgRef.current) return;
     setProcessing(true);
     try {
-      const croppedFile = await cropImage(imageSrc, croppedAreaPixels, fileName);
+      const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+      const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+      const pixelCrop = {
+        x: Math.round(completedCrop.x * scaleX),
+        y: Math.round(completedCrop.y * scaleY),
+        width: Math.round(completedCrop.width * scaleX),
+        height: Math.round(completedCrop.height * scaleY),
+      };
+      const croppedFile = await cropImage(imageSrc, pixelCrop, fileName);
       onConfirm(croppedFile);
     } finally {
       setProcessing(false);
@@ -80,15 +113,18 @@ export function CropOverlay({ imageSrc, fileName, onConfirm, onCancel }: CropOve
   return (
     <Overlay>
       <CropContainer>
-        <Cropper
-          image={imageSrc}
+        <ReactCrop
           crop={crop}
-          zoom={zoom}
-          aspect={undefined}
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={onCropComplete}
-        />
+          onChange={(c) => setCrop(c)}
+          onComplete={(c) => setCompletedCrop(c)}
+        >
+          <CropImage
+            ref={imgRef}
+            src={imageSrc}
+            alt="Crop preview"
+            onLoad={handleImageLoad}
+          />
+        </ReactCrop>
       </CropContainer>
       <ActionBar>
         <ActionButton onClick={onCancel} disabled={processing}>
