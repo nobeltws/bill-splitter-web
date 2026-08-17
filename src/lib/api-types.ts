@@ -45,7 +45,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List Sessions */
+        get: operations["list_sessions_api_sessions_get"];
         put?: never;
         /** Create Session */
         post: operations["create_session_api_sessions_post"];
@@ -196,6 +197,8 @@ export interface components {
              * @default 1
              */
             participantCount: number;
+            /** Name */
+            name?: string | null;
         };
         /** CreateSessionResponse */
         CreateSessionResponse: {
@@ -204,6 +207,8 @@ export interface components {
              * Format: uuid
              */
             sessionId: string;
+            /** Name */
+            name: string;
             /**
              * Createdat
              * Format: date-time
@@ -227,6 +232,8 @@ export interface components {
              * Format: uuid
              */
             sessionId: string;
+            /** Name */
+            name: string;
             /** Hostpaynowid */
             hostPaynowId: string;
             /** Items */
@@ -259,6 +266,11 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** ListSessionsResponse */
+        ListSessionsResponse: {
+            /** Sessions */
+            sessions: components["schemas"]["SessionListItem"][];
         };
         /** ParsedItem */
         ParsedItem: {
@@ -347,6 +359,21 @@ export interface components {
             quantity: number;
             /** Unitprice */
             unitPrice: number;
+        };
+        /** SessionListItem */
+        SessionListItem: {
+            /**
+             * Sessionid
+             * Format: uuid
+             */
+            sessionId: string;
+            /** Name */
+            name: string;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
         };
         /** SessionPaymentResponse */
         SessionPaymentResponse: {
@@ -461,6 +488,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ParsedReceipt"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sessions_api_sessions_get: {
+        parameters: {
+            query: {
+                hostPaynowId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListSessionsResponse"];
                 };
             };
             /** @description Validation Error */

@@ -19,6 +19,8 @@ export type SessionPaymentResponse = components["schemas"]["SessionPaymentRespon
 export type ParticipantSummary = components["schemas"]["ParticipantSummary"];
 export type UnclaimedItem = components["schemas"]["UnclaimedItem"];
 export type UnclaimedSummary = components["schemas"]["UnclaimedSummary"];
+export type ListSessionsResponse = components["schemas"]["ListSessionsResponse"];
+export type SessionListItem = components["schemas"]["SessionListItem"];
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -164,6 +166,21 @@ export async function unmarkPaid(
       body: data,
     }
   );
+
+  if (error) {
+    const detail = (error as { detail?: { msg: string }[] })?.detail;
+    throw new Error(detail?.[0]?.msg || "Request failed");
+  }
+
+  return result;
+}
+
+export async function listSessions(
+  hostPaynowId: string
+): Promise<ListSessionsResponse> {
+  const { data: result, error } = await client.GET("/api/sessions", {
+    params: { query: { hostPaynowId } },
+  });
 
   if (error) {
     const detail = (error as { detail?: { msg: string }[] })?.detail;

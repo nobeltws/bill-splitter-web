@@ -57,14 +57,14 @@
 				"summary": "Create Session",
 				"operationId": "create_session_api_sessions_post",
 				"requestBody": {
+					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
 								"$ref": "#/components/schemas/CreateSessionRequest"
 							}
 						}
-					},
-					"required": true
+					}
 				},
 				"responses": {
 					"201": {
@@ -73,6 +73,40 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/CreateSessionResponse"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HTTPValidationError"
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"summary": "List Sessions",
+				"operationId": "list_sessions_api_sessions_get",
+				"parameters": [
+					{
+						"name": "hostPaynowId",
+						"in": "query",
+						"required": true,
+						"schema": { "type": "string", "title": "Hostpaynowid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ListSessionsResponse"
 								}
 							}
 						}
@@ -484,6 +518,13 @@
 						"exclusiveMinimum": 0.0,
 						"title": "Participantcount",
 						"default": 1
+					},
+					"name": {
+						"anyOf": [
+							{ "type": "string", "maxLength": 100 },
+							{ "type": "null" }
+						],
+						"title": "Name"
 					}
 				},
 				"type": "object",
@@ -497,6 +538,7 @@
 						"format": "uuid",
 						"title": "Sessionid"
 					},
+					"name": { "type": "string", "title": "Name" },
 					"createdAt": {
 						"type": "string",
 						"format": "date-time",
@@ -504,7 +546,7 @@
 					}
 				},
 				"type": "object",
-				"required": ["sessionId", "createdAt"],
+				"required": ["sessionId", "name", "createdAt"],
 				"title": "CreateSessionResponse"
 			},
 			"DeleteClaimRequest": {
@@ -531,6 +573,7 @@
 						"format": "uuid",
 						"title": "Sessionid"
 					},
+					"name": { "type": "string", "title": "Name" },
 					"hostPaynowId": {
 						"type": "string",
 						"title": "Hostpaynowid"
@@ -577,6 +620,7 @@
 				"type": "object",
 				"required": [
 					"sessionId",
+					"name",
 					"hostPaynowId",
 					"items",
 					"taxRate",
@@ -599,6 +643,20 @@
 				},
 				"type": "object",
 				"title": "HTTPValidationError"
+			},
+			"ListSessionsResponse": {
+				"properties": {
+					"sessions": {
+						"items": {
+							"$ref": "#/components/schemas/SessionListItem"
+						},
+						"type": "array",
+						"title": "Sessions"
+					}
+				},
+				"type": "object",
+				"required": ["sessions"],
+				"title": "ListSessionsResponse"
 			},
 			"ParsedItem": {
 				"properties": {
@@ -750,6 +808,24 @@
 				"type": "object",
 				"required": ["id", "name", "quantity", "unitPrice"],
 				"title": "SessionItemResponse"
+			},
+			"SessionListItem": {
+				"properties": {
+					"sessionId": {
+						"type": "string",
+						"format": "uuid",
+						"title": "Sessionid"
+					},
+					"name": { "type": "string", "title": "Name" },
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"title": "Createdat"
+					}
+				},
+				"type": "object",
+				"required": ["sessionId", "name", "createdAt"],
+				"title": "SessionListItem"
 			},
 			"SessionPaymentResponse": {
 				"properties": {

@@ -211,6 +211,7 @@ export default function SessionNewPage() {
 
 	const [items, setItems] = useState<EditableItem[]>([]);
 	const [uncertainItems, setUncertainItems] = useState<UncertainItemData[]>([]);
+	const [sessionName, setSessionName] = useState("");
 	const [serviceCharge, setServiceCharge] = useState("10");
 	const [gst, setGst] = useState("9");
 	const [discount, setDiscount] = useState("0");
@@ -314,6 +315,7 @@ export default function SessionNewPage() {
 				serviceChargeRate: (Number(serviceCharge) || 0) / 100,
 				discount: Number(discount) || 0,
 				participantCount: Number(participantCount) || 1,
+				name: sessionName.trim() || null,
 			});
 			clear();
 			router.push(`/sessions/${response.sessionId}/dashboard`);
@@ -345,6 +347,21 @@ export default function SessionNewPage() {
 	return (
 		<div>
 			<Title>Review Your Bill</Title>
+
+			<Section>
+				<SectionTitle>Session Name</SectionTitle>
+				<InputGroup>
+					<Label htmlFor="sessionName">Give your session a name (optional)</Label>
+					<Input
+						id="sessionName"
+						type="text"
+						value={sessionName}
+						onChange={(e) => setSessionName(e.target.value)}
+						placeholder="e.g. Friday Dinner"
+						maxLength={100}
+					/>
+				</InputGroup>
+			</Section>
 
 			<Section>
 				<SectionTitle>Items</SectionTitle>
